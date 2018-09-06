@@ -383,7 +383,7 @@ Status H264HeadersBitstream::GetSequenceParamSet(H264SeqParamSet *sps)
     sps->level_idc = (uint8_t)GetBits(8);
 
     if (sps->level_idc == H264VideoDecoderParams::H264_LEVEL_UNKNOWN)
-        sps->level_idc = H264VideoDecoderParams::H264_LEVEL_52;
+        sps->level_idc = H264VideoDecoderParams::H264_LEVEL_62;
 
     switch(sps->level_idc)
     {
@@ -407,7 +407,12 @@ Status H264HeadersBitstream::GetSequenceParamSet(H264SeqParamSet *sps)
     case H264VideoDecoderParams::H264_LEVEL_5:
     case H264VideoDecoderParams::H264_LEVEL_51:
     case H264VideoDecoderParams::H264_LEVEL_52:
+
+    case H264VideoDecoderParams::H264_LEVEL_6:
+    case H264VideoDecoderParams::H264_LEVEL_61:
+    case H264VideoDecoderParams::H264_LEVEL_62:
         break;
+
     case H264VideoDecoderParams::H264_LEVEL_9:
         if (sps->profile_idc != H264VideoDecoderParams::H264_PROFILE_BASELINE &&
             sps->profile_idc != H264VideoDecoderParams::H264_PROFILE_MAIN &&

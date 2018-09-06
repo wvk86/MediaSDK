@@ -84,7 +84,12 @@ public:
         H264_LEVEL_5    = 50,
         H264_LEVEL_51   = 51,
         H264_LEVEL_52   = 52,
-        H264_LEVEL_MAX  = 52,
+
+        H264_LEVEL_6    = 60,
+        H264_LEVEL_61   = 61,
+        H264_LEVEL_62   = 62,
+
+        H264_LEVEL_MAX  = 62,
 
         H264_LEVEL_9    = 9  // for SVC profiles
     };

@@ -425,6 +425,9 @@ enum {
     MFX_LEVEL_AVC_5                         =50,
     MFX_LEVEL_AVC_51                        =51,
     MFX_LEVEL_AVC_52                        =52,
+    MFX_LEVEL_AVC_6                         =60,
+    MFX_LEVEL_AVC_61                        =61,
+    MFX_LEVEL_AVC_62                        =62,
 
     /* MPEG-2 Profiles & Levels */
     MFX_PROFILE_MPEG2_SIMPLE                =0x50,

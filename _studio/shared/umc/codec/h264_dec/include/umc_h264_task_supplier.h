@@ -720,8 +720,13 @@ inline int32_t CalculateDPBSize(uint8_t & level_idc, int32_t width, int32_t heig
         case H264VideoDecoderParams::H264_LEVEL_52:
             MaxDPBMbs = 184320;
             break;
+        case H264VideoDecoderParams::H264_LEVEL_6:
+        case H264VideoDecoderParams::H264_LEVEL_61:
+        case H264VideoDecoderParams::H264_LEVEL_62:
+            MaxDPBMbs = 696320;
+            break;
         default:
-            MaxDPBMbs = 184320; //get as much as we may
+            MaxDPBMbs = 696320; //get as much as we may
             break;
         }
 
