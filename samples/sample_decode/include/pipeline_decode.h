@@ -165,6 +165,48 @@ private:
     void operator=(const CPipelineStatistics&);
 };
 
+struct CExtensionParameters
+{
+	struct CSequenceExtention
+	{
+		mfxU8  extension_start_code_identifier = 0;
+		mfxU8  profile_and_level_indication_escape = 0;
+		mfxU8  profile_and_level_indication_profile = 0;
+		mfxU8  profile_and_level_indication_level = 0;
+		mfxU8  progressive_sequence = 0;
+		mfxU8  chroma_format = 0;
+		mfxU8  horizontal_size_extension = 0;
+		mfxU8  vertical_size_extension = 0;
+		mfxU16 bit_rate_extension = 0;
+		mfxU8  vbv_buffer_size_extension = 0;
+		mfxU8  low_delay = 0;
+		mfxU8  frame_rate_extension_n = 0;
+		mfxU8  frame_rate_extension_d = 0;
+
+		void PrintParameters();
+	} se;
+
+	struct CSequenceDisplayExtention
+	{
+		mfxU8  extension_start_code_identifier = 0;
+		mfxU8  video_format = 0;
+		mfxU8  colour_description = 0;
+		mfxU8  colour_primaries = 0;
+		mfxU8  transfer_characteristics = 0;
+		mfxU8  matrix_coefficients = 0;
+		mfxU16 display_horizontal_size = 0;
+		mfxU16 display_vertical_size = 0;
+
+		void PrintParameters();
+	} sde;
+
+	void PrintParameters()
+	{
+		se.PrintParameters();
+		sde.PrintParameters();
+	}
+};
+
 class CDecodingPipeline:
     public CBuffering,
     public CPipelineStatistics
@@ -228,6 +270,8 @@ protected: // functions
     virtual mfxStatus AllocFrames();
     virtual void DeleteFrames();
     virtual void DeleteAllocator();
+
+    virtual mfxStatus FillExtensionParameters(CExtensionParameters &mp);
 
     /** \brief Performs SyncOperation on the current output surface with the specified timeout.
      *

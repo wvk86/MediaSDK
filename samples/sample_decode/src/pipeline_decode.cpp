@@ -151,6 +151,110 @@ CDecodingPipeline::~CDecodingPipeline()
     Close();
 }
 
+mfxStatus CDecodingPipeline::FillExtensionParameters(CExtensionParameters &mp)
+{
+	if (m_mfxBS.Data)
+	{
+		mfxU8* ptr;
+		mfxU8* beg = m_mfxBS.Data + m_mfxBS.DataOffset;
+		mfxU8* end = m_mfxBS.Data + m_mfxBS.DataOffset + m_mfxBS.DataLength;
+
+
+		for (ptr = beg; ptr + 4 < end; ++ptr)
+		{
+			if (*ptr == 0 && *(ptr + 1) == 0 && *(ptr + 2) == 1 && *(ptr + 3) == 0xb5)
+			{
+				mfxU32 code = (*(ptr + 4) & 0xf0);
+
+				if (code == 0x10)
+				{
+					mp.se.extension_start_code_identifier = (*(ptr + 4) & ~0xf) >> 4;
+					mp.se.profile_and_level_indication_escape = (*(ptr + 4) >> 3) & 0x1;
+					mp.se.profile_and_level_indication_profile = *(ptr + 4) & 0x7;
+
+					code = (*(ptr + 5) << 16) | (*(ptr + 6) << 8) | *(ptr + 7);
+
+					mp.se.profile_and_level_indication_level = (code >> 20);
+					mp.se.progressive_sequence = (code >> 19) & 1;
+					mp.se.chroma_format = (code >> 17) & 3;
+
+					mp.se.horizontal_size_extension = (code >> 15) & 0x3;
+					mp.se.vertical_size_extension = (code >> 13) & 0x3;
+					mp.se.bit_rate_extension = (code >> 1) & 0xfff;
+					mp.se.vbv_buffer_size_extension = *(ptr + 8);
+
+					mp.se.low_delay = *(ptr + 9) >> 7;
+					mp.se.frame_rate_extension_n = (*(ptr + 9) >> 7) & 0x3;
+					mp.se.frame_rate_extension_d = *(ptr + 9) & 0x1f;
+				}
+				else if (code == 0x20)
+				{
+					mp.sde.extension_start_code_identifier = (*(ptr + 4) & ~0xf) >> 4;
+					mp.sde.video_format = (*(ptr + 4) >> 3) & 0x7;
+					mp.sde.colour_description = *(ptr + 4) & 0x1;
+
+					if (mp.sde.colour_description) // 4+24 bits skip
+					{
+						mp.sde.colour_primaries = *(ptr + 5);
+						mp.sde.transfer_characteristics = *(ptr + 6);
+						mp.sde.matrix_coefficients = *(ptr + 7);
+
+						code = (*(ptr + 8) << 24) | (*(ptr + 9) << 16) | (*(ptr + 10) << 8) | *(ptr + 11);//28 bit
+					}
+					else
+					{
+						code = (*(ptr + 5) << 24) | (*(ptr + 6) << 16) | (*(ptr + 7) << 8) | *(ptr + 8);
+					}
+
+					mp.sde.display_horizontal_size = (code >> 18);
+					mp.sde.display_vertical_size = (code >> 3) & 0x00003fff;
+
+					break;
+				}
+			}
+		}
+
+		return MFX_ERR_NONE;
+	}
+
+	msdk_printf(MSDK_STRING("ERROR: m_mfxBS.Data is empty"));
+
+	return MFX_ERR_UNKNOWN;
+}
+
+void CExtensionParameters::CSequenceExtention::PrintParameters()
+{
+	msdk_printf(MSDK_STRING("\nPrinting SequenceExtention data...\n"));
+	msdk_printf(MSDK_STRING("extension_start_code_identifier:      %d\n"), extension_start_code_identifier);
+	msdk_printf(MSDK_STRING("profile_and_level_indication_escape:  %d\n"), profile_and_level_indication_escape);
+	msdk_printf(MSDK_STRING("profile_and_level_indication_profile: %d\n"), profile_and_level_indication_profile);
+	msdk_printf(MSDK_STRING("profile_and_level_indication_level:   %d\n"), profile_and_level_indication_level);
+	msdk_printf(MSDK_STRING("progressive_sequence:                 %d\n"), progressive_sequence);
+	msdk_printf(MSDK_STRING("chroma_format:                        %d\n"), chroma_format);
+	msdk_printf(MSDK_STRING("horizontal_size_extension:            %d\n"), horizontal_size_extension);
+	msdk_printf(MSDK_STRING("vertical_size_extension:              %d\n"), vertical_size_extension);
+	msdk_printf(MSDK_STRING("bit_rate_extension:                   %d\n"), bit_rate_extension);
+	msdk_printf(MSDK_STRING("vbv_buffer_size_extension:            %d\n"), vbv_buffer_size_extension);
+	msdk_printf(MSDK_STRING("low_delay:                            %d\n"), low_delay);
+	msdk_printf(MSDK_STRING("frame_rate_extension_n:               %d\n"), frame_rate_extension_n);
+	msdk_printf(MSDK_STRING("frame_rate_extension_d:               %d\n"), frame_rate_extension_d);
+	msdk_printf(MSDK_STRING("End of SequenceExtention data...\n\n"));
+}
+
+void CExtensionParameters::CSequenceDisplayExtention::PrintParameters()
+{
+	msdk_printf(MSDK_STRING("\nPrinting SequenceDisplayExtention data...\n"));
+	msdk_printf(MSDK_STRING("extension_start_code_identifier:      %d\n"), extension_start_code_identifier);
+	msdk_printf(MSDK_STRING("video_format:                         %d\n"), video_format);
+	msdk_printf(MSDK_STRING("colour_description:                   %d\n"), colour_description);
+	msdk_printf(MSDK_STRING("colour_primaries:                     %d\n"), colour_primaries);
+	msdk_printf(MSDK_STRING("transfer_characteristics:             %d\n"), transfer_characteristics);
+	msdk_printf(MSDK_STRING("matrix_coefficients:                  %d\n"), matrix_coefficients);
+	msdk_printf(MSDK_STRING("display_horizontal_size:              %d\n"), display_horizontal_size);
+	msdk_printf(MSDK_STRING("display_vertical_size:                %d\n"), display_vertical_size);
+	msdk_printf(MSDK_STRING("End of SequenceDisplayExtention data...\n\n"));
+}
+
 mfxStatus CDecodingPipeline::Init(sInputParams *pParams)
 {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
@@ -393,6 +497,13 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams)
     // Populate parameters. Involves DecodeHeader call
     sts = InitMfxParams(pParams);
     MSDK_CHECK_STATUS(sts, "InitMfxParams failed");
+
+    // collect extension parameters from bitstream headers
+    CExtensionParameters extParams;
+    FillExtensionParameters(extParams);
+
+    // print extension parameters
+    extParams.PrintParameters();
 
     if (m_bVppIsUsed)
         m_bDecOutSysmem = pParams->bUseHWLib ? false : true;
@@ -1338,9 +1449,12 @@ void CDecodingPipeline::AttachExtParam()
 
 void CDecodingPipeline::DeleteExtBuffers()
 {
-    for (std::vector<mfxExtBuffer *>::iterator it = m_ExtBuffers.begin(); it != m_ExtBuffers.end(); ++it)
+    for (auto it = m_ExtBuffers.begin(); it != m_ExtBuffers.end(); ++it)
         delete *it;
+
     m_ExtBuffers.clear();
+    m_mfxVideoParams.NumExtParam = 0;
+    m_mfxVideoParams.ExtParam = NULL;
 }
 
 mfxStatus CDecodingPipeline::AllocateExtMVCBuffers()
