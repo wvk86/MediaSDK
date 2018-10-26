@@ -623,10 +623,13 @@ Status MJPEGVideoDecoderMFX_HW::PackHeaders(MediaData* src, JPEG_DECODE_SCAN_PAR
                 huffmanParams->load_huffman_table[i] = 1;
                 if (std::end(huffmanParams->huffman_table[i].num_dc_codes) - std::begin(huffmanParams->huffman_table[i].num_dc_codes) < 16)
                     return UMC_ERR_NOT_ENOUGH_BUFFER;
+
                 const uint8_t *bits = m_decBase->m_dctbl[i].GetBits();
                 std::copy(bits, bits + 16, std::begin(huffmanParams->huffman_table[i].num_dc_codes));
+
                 if (std::end(huffmanParams->huffman_table[i].dc_values) - std::begin(huffmanParams->huffman_table[i].dc_values) < 12)
                     return UMC_ERR_NOT_ENOUGH_BUFFER;
+
                 bits = m_decBase->m_dctbl[i].GetValues();
                 std::copy(bits, bits + 12, std::begin(huffmanParams->huffman_table[i].dc_values));
             }
@@ -635,10 +638,13 @@ Status MJPEGVideoDecoderMFX_HW::PackHeaders(MediaData* src, JPEG_DECODE_SCAN_PAR
                 huffmanParams->load_huffman_table[i] = 1;
                 if (std::end(huffmanParams->huffman_table[i].num_ac_codes) - std::begin(huffmanParams->huffman_table[i].num_ac_codes) < 16)
                     return UMC_ERR_NOT_ENOUGH_BUFFER;
+
                 const uint8_t *bits = m_decBase->m_actbl[i].GetBits();
                 std::copy(bits, bits + 16, std::begin(huffmanParams->huffman_table[i].num_ac_codes));
+
                 if (std::end(huffmanParams->huffman_table[i].ac_values) - std::begin(huffmanParams->huffman_table[i].ac_values) < 162)
                     return UMC_ERR_NOT_ENOUGH_BUFFER;
+
                 bits = m_decBase->m_actbl[i].GetValues();
                 std::copy(bits, bits + 162, std::begin(huffmanParams->huffman_table[i].ac_values));
             }
@@ -680,7 +686,7 @@ Status MJPEGVideoDecoderMFX_HW::PackHeaders(MediaData* src, JPEG_DECODE_SCAN_PAR
     {
         *buffersForUpdate -= 1 << 4;
         UMCVACompBuffer* compBufBs;
-        uint8_t *ptr   = (uint8_t *)src->GetDataPointer();
+        uint8_t *ptr          = (uint8_t *)src->GetDataPointer();
         uint8_t *bistreamData = (uint8_t *)m_va->GetCompBuffer(VASliceDataBufferType, &compBufBs, obtainedScanParams->DataLength);
 
         if(!bistreamData)

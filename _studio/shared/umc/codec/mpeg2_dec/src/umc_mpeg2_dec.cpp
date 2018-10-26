@@ -649,32 +649,32 @@ MPEG2VideoDecoderBase::~MPEG2VideoDecoderBase()
 
 Status MPEG2VideoDecoderBase::Reset()
 {
-    sequenceHeader.is_decoded = false;
-    sequenceHeader.first_i_occure  = 0;
-    sequenceHeader.first_p_occure  = 0;
-    sequenceHeader.broken_link = 0;
-    sequenceHeader.closed_gop  = 0;
-    sequenceHeader.time_code.gop_picture = 0;
-    sequenceHeader.time_code.gop_seconds = 0;
-    sequenceHeader.time_code.gop_minutes = 0;
-    sequenceHeader.time_code.gop_hours   = 0;
+    sequenceHeader.is_decoded                    = false;
+    sequenceHeader.first_i_occure                = 0;
+    sequenceHeader.first_p_occure                = 0;
+    sequenceHeader.broken_link                   = 0;
+    sequenceHeader.closed_gop                    = 0;
+    sequenceHeader.time_code.gop_picture         = 0;
+    sequenceHeader.time_code.gop_seconds         = 0;
+    sequenceHeader.time_code.gop_minutes         = 0;
+    sequenceHeader.time_code.gop_hours           = 0;
     sequenceHeader.time_code.gop_drop_frame_flag = 0;
-    sequenceHeader.stream_time = 0; //-sequenceHeader.delta_frame_time;
-    sequenceHeader.frame_rate_extension_d = 0;
-    sequenceHeader.frame_rate_extension_n = 0;
-    sequenceHeader.frame_rate_code = 0;
-    sequenceHeader.aspect_ratio_code = 0;
-    sequenceHeader.chroma_format = 0;
-    sequenceHeader.width = 0;
-    sequenceHeader.height = 0;
+    sequenceHeader.stream_time                   = 0; //-sequenceHeader.delta_frame_time;
+    sequenceHeader.frame_rate_extension_d        = 0;
+    sequenceHeader.frame_rate_extension_n        = 0;
+    sequenceHeader.frame_rate_code               = 0;
+    sequenceHeader.aspect_ratio_code             = 0;
+    sequenceHeader.chroma_format                 = 0;
+    sequenceHeader.width                         = 0;
+    sequenceHeader.height                        = 0;
 
-    frame_buffer.latest_prev =  -1;
+    frame_buffer.latest_prev       = -1;
     frame_buffer.common_curr_index = -1;
-    frame_buffer.latest_next =  -1;
-    m_picture_coding_type_save = MPEG2_I_PICTURE;
+    frame_buffer.latest_next       = -1;
+    m_picture_coding_type_save     = MPEG2_I_PICTURE;
 
-    m_IsLastFrameProcessed = false;
-    m_isFrameRateFromInit = false;
+    m_IsLastFrameProcessed  = false;
+    m_isFrameRateFromInit   = false;
     m_isAspectRatioFromInit = false;
 
     for (int i = 0; i < 2*DPB_SIZE; i++)
@@ -682,20 +682,20 @@ Status MPEG2VideoDecoderBase::Reset()
         PictureHeader[i].intra_vlc_format    = 0;
         PictureHeader[i].curr_intra_dc_multi = intra_dc_multi[0];
 
-        frame_buffer.ret_array[i] = -1;
-        frame_buffer.curr_index[i] =  -1;
-        frame_buffer.retrieve = -1;
-        frame_buffer.field_buffer_index[i]  = 0;
-        frame_buffer.frame_p_c_n[i].frame_time = -1;
-        frame_buffer.frame_p_c_n[i].duration = 0;
+        frame_buffer.ret_array[i]  = -1;
+        frame_buffer.curr_index[i] = -1;
+        frame_buffer.retrieve      = -1;
+        frame_buffer.field_buffer_index[i]            = 0;
+        frame_buffer.frame_p_c_n[i].frame_time        = -1;
+        frame_buffer.frame_p_c_n[i].duration          = 0;
         frame_buffer.frame_p_c_n[i].IsUserDataDecoded = false;
-        frame_buffer.frame_p_c_n[i].us_data_size = 0;
+        frame_buffer.frame_p_c_n[i].us_data_size      = 0;
         ClearUserDataVector(frame_user_data_v[i]);
 
         frame_buffer.frame_p_c_n[i].va_index = -1;
         task_locked[i] = -1;
 
-        m_dTime[i].time     = -1.;
+        m_dTime[i].time       = -1.;
         m_dTime[i].isOriginal = false;
         m_nNumberOfThreadsTask[i] = m_nNumberOfThreads;
     }
@@ -703,7 +703,7 @@ Status MPEG2VideoDecoderBase::Reset()
     m_dTimeCalc     = -1.;
 
     frame_buffer.ret_array_curr = 0;
-    frame_buffer.ret_index = -1;
+    frame_buffer.ret_index      = -1;
     frame_buffer.ret_array_free = 0;
     frame_buffer.ret_array_len  = 0;
 
@@ -727,7 +727,7 @@ Status MPEG2VideoDecoderBase::GetInfo(BaseCodecParams* info)
 
   // BaseCodecParams
   info->profile = sequenceHeader.profile;
-  info->level = sequenceHeader.level;
+  info->level   = sequenceHeader.level;
 
   VideoDecoderParams *pParams = DynamicCast<VideoDecoderParams> (info);
 
